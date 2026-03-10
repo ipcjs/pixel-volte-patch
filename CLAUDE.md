@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Prerequisites
 This project requires a **patched android.jar** to compile successfully:
-1. Download the [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-34/android.jar)
+1. Download the [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar)
 2. Place it under `$ANDROID_SDK/platforms/android-34/`
 3. This enables access to hidden Android APIs at compile-time
 

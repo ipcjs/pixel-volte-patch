@@ -80,7 +80,7 @@ only if installing Shizuku using ADB
 5. Restart your Pixel phone a couple of times until you can see VoLTE is working.
 
 ### Build application from source
-Download [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-34/android.jar), put it under `$ANDROID_PATH/sdk/platforms/android-34` and start hacking as usual.
+Download [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar), put it under `$ANDROID_PATH/sdk/platforms/android-34` and start hacking as usual.
 
 ## FAQ
 

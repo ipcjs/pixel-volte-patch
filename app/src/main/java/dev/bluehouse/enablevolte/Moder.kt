@@ -468,6 +468,14 @@ class SubscriptionModer(
     val carrierName: String?
         get() = this.loadCachedInterface { telephony }.getSubscriptionCarrierName(this.subscriptionId)
 
+    val carrierNameOverride: String?
+        get() = if (this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_NAME_OVERRIDE_BOOL))
+            this.getStringValue(CarrierConfigManager.KEY_CARRIER_NAME_STRING) else null
+
+    val simCountryIsoOverride: String?
+        @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
+        get() = this.getStringValue(CarrierConfigManager.KEY_SIM_COUNTRY_ISO_OVERRIDE_STRING)
+
     val showVoWifiIcon: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL)
 

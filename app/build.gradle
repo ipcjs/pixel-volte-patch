@@ -6,7 +6,12 @@ plugins {
 
 android {
     namespace 'dev.bluehouse.enablevolte'
-    compileSdk 36
+    def hiddenApiSdk = project.findProperty("app.customSdk.hiddenApi36")
+    if (hiddenApiSdk) {
+        compileSdkPreview = hiddenApiSdk
+    } else {
+        compileSdk = 36
+    }
 
     defaultConfig {
         applicationId "dev.bluehouse.enablevolte"

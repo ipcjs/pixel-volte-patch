@@ -75,7 +75,35 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 6. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
 
 ### APK 직접 빌드
-[패치된 android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar) 파일을 다운로드 후에 `$ANDROID_PATH/sdk/platforms/android-34` 경로 아래에 붙여 넣습니다. 이후에 앱을 빌드 및 시작합니다.
+빌드하려면 Android의 숨겨진(hidden) API를 노출하는 [패치된 android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar)가 필요합니다. 아래 두 가지 방법 중 하나를 선택하세요.
+
+#### 방법 1: 기본 android.jar 교체 (간단)
+패치된 `android.jar`를 `$ANDROID_SDK/platforms/android-36` 경로 아래에 붙여 넣은 후 평소처럼 빌드합니다.
+
+참고: `android-36`을 대상으로 컴파일하는 모든 프로젝트가 이 jar를 공유하므로, 해당 프로젝트들은 모두 패치된 버전을 사용하게 됩니다.
+
+#### 방법 2: 별도의 codename 플랫폼 (이 프로젝트에만 적용)
+`android-36`을 그대로 유지하므로 다른 프로젝트에 영향을 주지 않습니다. 이 프로젝트만 사용하는 별도의 codename 플랫폼을 설정합니다:
+
+1. `$ANDROID_SDK/platforms/android-36/`을 `$ANDROID_SDK/platforms/android-HiddenApi36/`으로 복사한 뒤, 그 안의 `android.jar`를 패치된 것으로 덮어씁니다.
+2. SDK 관리자가 이 폴더를 별개의 codename 플랫폼으로 인식하도록, 새 폴더 안의 메타데이터 파일 두 개를 수정합니다 (`+`는 추가되는 줄, `-`는 교체되는 줄):
+   ```diff
+   # source.properties
+     AndroidVersion.ApiLevel=36
+   + AndroidVersion.CodeName=HiddenApi36
+   ```
+   ```diff
+   # package.xml
+   -     <localPackage path="platforms;android-36" obsolete="false">
+   +     <localPackage path="platforms;android-HiddenApi36" obsolete="false">
+             <api-level>36</api-level>
+   +         <codename>HiddenApi36</codename>
+   ...
+   -         <display-name>Android SDK Platform 36</display-name>
+   +         <display-name>Android SDK Platform HiddenApi36</display-name>
+   ```
+3. `~/.gradle/gradle.properties`에 `app.customSdk.hiddenApi36=HiddenApi36`을 추가합니다. 이 속성이 설정되면 앱은 `compileSdkPreview`를 통해 codename 플랫폼으로 컴파일됩니다.
+4. (선택) codename 플랫폼에서 SDK 소스코드를 열람하려면, 위의 `platforms/android-HiddenApi36/`과 동일한 방식으로 `$ANDROID_SDK/sources/android-HiddenApi36/`을 설정합니다.
 
 ## 자주 묻는 질문
 

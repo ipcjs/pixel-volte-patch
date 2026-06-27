@@ -38,7 +38,13 @@ import dev.bluehouse.enablevolte.components.UserAgentPropertyView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.IllegalStateException
+
+val simCountryList = listOf(
+    null,
+    "jp" to "Softbank",
+    "us" to "Verizon",
+    "hk" to "HongKong",
+)
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -65,6 +71,7 @@ fun Config(
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
     var wfcSpnFormatIndex by rememberSaveable { mutableIntStateOf(0) }
+    var simCountryIndex by rememberSaveable { mutableIntStateOf(0)}
     var showVoWifiIcon by rememberSaveable { mutableStateOf(false) }
     var alwaysDataRATIcon by rememberSaveable { mutableStateOf(false) }
     var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
@@ -102,6 +109,12 @@ fun Config(
         showVoWifiMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiMode
         showVoWifiRoamingMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiRoamingMode
         wfcSpnFormatIndex = moder.wfcSpnFormatIndex
+        if (VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val actualValues = moder.simCountryIsoOverride to moder.carrierNameOverride
+            simCountryIndex = simCountryList
+                    .indexOfFirst { it?.first == actualValues.first && it?.second == actualValues.second }
+                    .takeIf { it >= 0 } ?: 0
+        }
         showVoWifiIcon = moder.showVoWifiIcon
         alwaysDataRATIcon = VERSION.SDK_INT >= VERSION_CODES.R && moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
@@ -146,7 +159,9 @@ fun Config(
     if (loading) {
         InfiniteLoadingDialog()
     } else {
-        Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
+        Column(modifier = Modifier
+            .padding(Dp(16f))
+            .verticalScroll(scrollState)) {
             HeaderText(text = stringResource(R.string.feature_toggles))
             BooleanPropertyView(label = stringResource(R.string.enable_volte), toggled = voLTEEnabled) {
                 voLTEEnabled =
@@ -158,6 +173,29 @@ fun Config(
                         moder.restartIMSRegistration()
                         true
                     }
+            }
+
+            if (VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                RadioSelectPropertyView(
+                    label = "SIM Country",
+                    values = simCountryList
+                        .map { if (it == null) "Default" else "${it.second}(${it.first})" }
+                        .toTypedArray(),
+                    selectedIndex = simCountryIndex
+                ) {
+                    simCountryIndex = it
+                    val simCountry = simCountryList[it]
+                    if (simCountry == null) {
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_SIM_COUNTRY_ISO_OVERRIDE_STRING, "")
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_NAME_OVERRIDE_BOOL, false)
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_NAME_STRING, "")
+                    } else {
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_SIM_COUNTRY_ISO_OVERRIDE_STRING, simCountry.first)
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_NAME_OVERRIDE_BOOL, true)
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_NAME_STRING, simCountry.second)
+                    }
+
+                }
             }
 
             BooleanPropertyView(

@@ -80,7 +80,35 @@ only if installing Shizuku using ADB
 5. Restart your Pixel phone a couple of times until you can see VoLTE is working.
 
 ### Build application from source
-Download [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-34/android.jar), put it under `$ANDROID_PATH/sdk/platforms/android-34` and start hacking as usual.
+Building requires a [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar) that exposes Android's hidden APIs. Choose one of the two methods below.
+
+#### Method 1: Replace the stock android.jar (quick)
+Put the patched `android.jar` under `$ANDROID_SDK/platforms/android-36` and start hacking as usual.
+
+Note: every project that compiles against `android-36` shares this jar, so they will all use the patched one.
+
+#### Method 2: Separate codename platform (isolated to this project)
+This leaves `android-36` untouched, so other projects are unaffected. Set up a separate codename platform that only this project targets:
+
+1. Copy `$ANDROID_SDK/platforms/android-36/` to `$ANDROID_SDK/platforms/android-HiddenApi36/`, then overwrite its `android.jar` with the patched one.
+2. Edit two metadata files in the new folder so the SDK manager treats it as a distinct codename platform (`+` lines are added, `-` lines are replaced):
+   ```diff
+   # source.properties
+     AndroidVersion.ApiLevel=36
+   + AndroidVersion.CodeName=HiddenApi36
+   ```
+   ```diff
+   # package.xml
+   -     <localPackage path="platforms;android-36" obsolete="false">
+   +     <localPackage path="platforms;android-HiddenApi36" obsolete="false">
+             <api-level>36</api-level>
+   +         <codename>HiddenApi36</codename>
+   ...
+   -         <display-name>Android SDK Platform 36</display-name>
+   +         <display-name>Android SDK Platform HiddenApi36</display-name>
+   ```
+3. Add `app.customSdk.hiddenApi36=HiddenApi36` to `~/.gradle/gradle.properties`. When the property is set, the app compiles against the codename platform via `compileSdkPreview`.
+4. Optionally, to browse SDK sources from the codename platform, set up `$ANDROID_SDK/sources/android-HiddenApi36/` the same way you did `platforms/android-HiddenApi36/` above.
 
 ## FAQ
 

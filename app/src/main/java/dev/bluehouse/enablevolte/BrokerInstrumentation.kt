@@ -29,7 +29,7 @@ class BrokerInstrumentation : Instrumentation() {
             configurationManager.overrideConfig(subId, overrideValues, false)
         } finally {
             Log.i(TAG, "applyConfig done")
-            am.stopDelegateShellPermissionIdentity()
+            am.stopDelegateShellPermissionIdentityCompat()
         }
     }
 
@@ -44,7 +44,7 @@ class BrokerInstrumentation : Instrumentation() {
             configurationManager.overrideConfig(subId, null, false)
         } finally {
             Log.i(TAG, "clearConfig done")
-            am.stopDelegateShellPermissionIdentity()
+            am.stopDelegateShellPermissionIdentityCompat()
         }
     }
 
